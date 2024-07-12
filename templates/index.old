@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wikipedia Game V1 - Development</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        /* CSS for loading spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 6px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* CSS for item list layout */
+        .item-list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            margin: 0 10px;
+        }
+
+        .item h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #007BFF;
+        }
+
+        .item p {
+            font-size: 1em;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .arrow {
+            font-size: 2em;
+            margin: 0 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-spinner" id="loading-spinner"></div>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title">The Wikipedia Game V1 - Development</h1>
+            <div id="content" style="display: none;">
+                <div class="item-list">
+                    <div class="item" id="topic1">
+                        <h2 class="subtitle"><a id="topic1-link" href="#" target="_blank"></a></h2>
+                        <p id="topic1-summary"></p>
+                    </div>
+                    <div class="arrow">➜</div>
+                    <div class="item" id="topic2">
+                        <h2 class="subtitle"><a id="topic2-link" href="#" target="_blank"></a></h2>
+                        <p id="topic2-summary"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const spinner = document.getElementById('loading-spinner');
+            const content = document.getElementById('content');
+
+            function showLoading() {
+                spinner.style.display = 'block';
+                content.style.display = 'none';
+            }
+
+            function hideLoading() {
+                spinner.style.display = 'none';
+                content.style.display = 'block';
+            }
+
+            function fetchData() {
+                showLoading();
+                fetch('/api/topics')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        } else {
+                            const topic1Link = document.getElementById('topic1-link');
+                            const topic2Link = document.getElementById('topic2-link');
+                            const topic1Summary = document.getElementById('topic1-summary');
+                            const topic2Summary = document.getElementById('topic2-summary');
+
+                            topic1Link.innerText = data.topic1.title;
+                            topic1Link.href = data.topic1.url;
+                            topic1Summary.innerText = data.topic1.summary;
+                            
+                            topic2Link.innerText = data.topic2.title;
+                            topic2Link.href = data.topic2.url;
+                            topic2Summary.innerText = data.topic2.summary;
+                        }
+                        hideLoading();
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                        hideLoading();
+                    });
+            }
+
+            fetchData();
+        });
+    </script>
+</body>
+</html>
